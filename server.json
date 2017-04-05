@@ -1,0 +1,8 @@
+{
+  "dataSources": [
+  ],
+  "properties": {
+    "zookeeper.connect": "zookeeper:2181",
+    "http.port": "8200"
+  }
+}

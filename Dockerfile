@@ -1,14 +1,21 @@
-FROM alpine:3.5
+FROM openjdk:8-jre-alpine
 MAINTAINER nbarnum <nbarnum@users.noreply.github.com>
 
-ENV TRANQ_VERSION 0.8.1
+ARG TRANQUILITY_HOME=/usr/local/tranquility
+ARG TRANQUILITY_VERSION=0.8.2
 
-RUN wget -q -O - \
-    http://static.druid.io/tranquility/releases/tranquility-distribution-$TRANQ_VERSION.tgz | tar -xzf - -C /tmp && \
-    mv /tmp/tranquility-distribution-$TRANQ_VERSION /tranquility
+RUN mkdir -p $TRANQUILITY_HOME/extensions \
+             $TRANQUILITY_HOME/var/tmp && \
+    wget -q -O - "http://static.druid.io/tranquility/releases/tranquility-distribution-$TRANQUILITY_VERSION.tgz" \
+      | tar zxf - --strip-components 1 -C $TRANQUILITY_HOME && \
+    apk add --no-cache bash
 
+VOLUME ["$TRANQUILITY_HOME/conf", "$TRANQUILITY_HOME/extensions"]
+
+COPY server.json $TRANQUILITY_HOME/conf/server.json
+
+WORKDIR $TRANQUILITY_HOME
 
 EXPOSE 8200
 
-ENTRYPOINT ["/tranquility/bin/tranquility"]
-CMD ["server", "-configFile", "/tranquility/conf/server.json.example"]
+ENTRYPOINT ["bin/tranquility"]
